@@ -20,8 +20,6 @@ class MathematicalParser
     // expression:=
     // operatorExpression [operator operatorExpression]*  (left-associative)
     // parenthisedExpression operator expression'
-
-
     // parenthisedExpression:='(' expression ')'
     // number operator expression
     private function expression(): Node
