@@ -1,5 +1,9 @@
 <?php
 use App\Parser\Tokenizer;
+
+/**
+ * Tokenizer handles the tokenization of mathematical expressions.
+ */
 class TokenizerTest extends \PHPUnit\Framework\TestCase
 {
 

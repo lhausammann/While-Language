@@ -2,6 +2,7 @@
 
 namespace App\Parser;
 
+
 class MathematicalParser
 {
     public function __construct(private readonly Tokenizer $tokenizer)
