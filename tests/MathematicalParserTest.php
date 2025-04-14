@@ -27,9 +27,18 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(3, $result->evaluate());
     }
 
+    public function testPlusMinusExpression() {
+        $this->markTestSkipped();
+        $expr = '1 + 2 - 3';
+        $tokenizer = new Tokenizer($expr);
+        $parser = new MathematicalParser($tokenizer);
+        $result = $parser->parse();
+
+        $this->assertEquals(-1, $result->evaluate());
+    }
+
     public function checkHandleParentheses()
     {
-        $this->markTestSkipped();
         $expr = '(1 + 2) * 3';
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);

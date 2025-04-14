@@ -12,6 +12,11 @@ class Tokenizer
     {
         while ($this->position < strlen($this->expression)) {
             $char = $this->expression[$this->position];
+            if ($char === '(' || $char === ')') {
+                $this->position++;
+                return new Token('BRACKET', $char, $this->position);
+            }
+
             if (ctype_space($char)) {
                 $this->position++;
                 continue;
@@ -28,6 +33,13 @@ class Tokenizer
         }
 
         return new Token('END', 'END', $this->position);
+    }
+
+    public function lookahead(): Token {
+        $pos = $this->position;
+        $token = $this->next();
+        $this->position = $pos;
+        return $token;
     }
 
     public function number() : Token {
