@@ -18,11 +18,6 @@ class MathematicalParser
         return $result;
     }
 
-    // expression:
-    // multiplyDivideExpr '+|-' multiplyDivideExpr
-    // multiplyDivideExpr: 'expression' ('*'|'/' expression)*
-
-
     private function expression(): Node
     {
         // 7 + 3 [-2 +....]

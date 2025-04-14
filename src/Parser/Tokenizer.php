@@ -36,7 +36,6 @@ class Tokenizer
             $this->position++;
         }
         $t = new Token('number', substr($this->expression, $start, $this->position - $start), $start);
-        var_dump($t);
         return $t;
     }
 
