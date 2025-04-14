@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  symfony:
+    build: .
+    container_name: parser-app
+    ports:
+      - "8090:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - SYMFONY_ENV=dev
+    networks:
+      - symfony-net
+
+networks:
+  symfony-net:
+    driver: bridge
