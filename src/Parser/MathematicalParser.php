@@ -18,38 +18,50 @@ class MathematicalParser
     }
 
     // expression:=
-    // '(' expression ') operator expression'
+    // operatorExpression [operator operatorExpression]*  (left-associative)
+    // parenthisedExpression operator expression'
+
+
+    // parenthisedExpression:='(' expression ')'
     // number operator expression
     private function expression(): Node
     {
         $lookahead = $this->lookahead();
         // starts with opening bracket - match whole expression
-        // (7+2)
+        // e.g. (7+2)
         if ($lookahead && $lookahead->value === '(') {
-            $this->match('BRACKET', '(');
-            $expr = $this->expression();
-            $this->match('BRACKET', ')');
-            // if the next token is a number, we can return the expression
-            // otherwise we have to check if it is an operator
-            $operator = new CompositeNode($expr, $this->expression(),$this->match('operator'));
-            return $operator;
+            return $this->matchParenthisedExpression();
+        }
+        // starts with a leaf node (number) - match following operator (list)
+        if ($lookahead && $lookahead->type === 'number') {
+            return $this->matchOperatorExpression();
         }
 
+        // if we reach here, we have an invalid expression
+        throw new \RuntimeException("Invalid expression at position {$lookahead->position}");
+    }
+
+    private function matchParenthisedExpression(): Node
+    {
+        $this->match('BRACKET', '(');
+        $expression = $this->expression();
+        $this->match('BRACKET', ')');
+
+        return $expression;
+    }
+
+    private function matchOperatorExpression(): Node
+    {
         // 7 + 3 [-2 +....]
-        // starts with a number (bracket is handled above). Could be follwoed by operator and another expression
-        //if ($lookahead->type === 'number') {
-        $left = new Node($this->match('number'));
-        $lookahead = $this->lookahead();
-        if ($lookahead && $lookahead->type === 'operator') {
-            while ($token = $this->tryMatch('operator')) {
-                // an operator mus be followed by a number
-                $right = $this->expression();
-                $operator = new CompositeNode($left, $right, $token);
-                $left = $operator;
-            }
+        $left = $operator = new Node($this->match('number'));
+        while ($token = $this->tryMatch('operator')) {
+            // an operator mus be followed by a number
+            $right = new Node($this->match('number'));
+            $operator = new CompositeNode($left, $right, $token);
+            $left = $operator;
         }
-
-        return $left;
+        $this->matchEnd();
+        return $operator;
     }
 
     public function match(string $type, int|string|float $value = null): Token
