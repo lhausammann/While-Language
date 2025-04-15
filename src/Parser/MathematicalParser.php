@@ -30,7 +30,8 @@ class MathematicalParser
         if ($lookahead && $lookahead->value === '(') {
             return $this->matchParenthisedExpression();
         }
-        // starts with a leaf node (number) - match following operator (list)
+        // starts with a leaf node (number) - match following operator (list) with precedence:
+        // e.g. 7 + 3 - 2
         if ($lookahead && $lookahead->type === 'number') {
             return $this->matchOperatorExpression();
         }
@@ -50,17 +51,34 @@ class MathematicalParser
 
     private function matchOperatorExpression(): Node
     {
-        // 7 + 3 [-2 +....]
+        // 7 + 3 [ / 2 - 5 +....]
+        //$left = $operator = new Node($this->match('number'));
+        $left = $operator = $this->matchOperatorDivideMultipliy();
+        while ($token = $this->tryMatch('operator', ['+', '-'])) {
+            // an operator mus be followed by a number
+            $right = $this->matchOperatorDivideMultipliy();
+            $operator = new CompositeNode($left, $right, $token);
+            $left = $operator;
+        }
+
+        return $operator;
+    }
+
+    private function matchOperatorDivideMultipliy(): Node
+    {
+        // 7 * 3
         $left = $operator = new Node($this->match('number'));
-        while ($token = $this->tryMatch('operator')) {
+        while ($token = $this->tryMatch('operator', ['*', '/'])) {
             // an operator mus be followed by a number
             $right = new Node($this->match('number'));
             $operator = new CompositeNode($left, $right, $token);
             $left = $operator;
         }
-        $this->matchEnd();
+
         return $operator;
     }
+
+
 
     public function match(string $type, int|string|float $value = null): Token
     {
@@ -75,11 +93,21 @@ class MathematicalParser
         return $token;
     }
 
-    public function tryMatch(string $type): ?Token
+    public function tryMatch(string $type, int|string|float|bool|array $value = null): ?Token
     {
         $token = $this->tokenizer->lookahead();
         if ($token->type !== $type) {
             return null;
+        }
+
+        // check using in_array
+        if (is_array($value)) {
+            if (!in_array($token->value, $value)) {
+                return null;
+            }
+        } elseif ($value !== null && $token->value !== $value) {
+            return null;
+
         }
 
         return $this->tokenizer->next();
