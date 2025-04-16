@@ -21,15 +21,20 @@ class CalculatorCommand extends Command
     {
         $this->setHelp('This command allows you to calculate...');
         $this->addArgument('expression', InputArgument::REQUIRED, 'Expression');
+        $this->addOption('context', 'c', InputArgument::OPTIONAL, 'Context', null);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $context = parse_url('?'.$input->getOption('context'), PHP_URL_QUERY);
+        if ($context) {
+            $output->writeln('Context: ' . print_r($context, true));
+        }
         $expr = $input->getArgument('expression');
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
         $ast = $parser->parse();
-        $output->writeln((string) $ast->evaluate());
+        $output->writeln((string) $ast->evaluate($context = []));
         return Command::SUCCESS;
     }
 }

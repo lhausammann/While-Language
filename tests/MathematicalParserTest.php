@@ -24,7 +24,7 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         $parser = new MathematicalParser($tokenizer);
         $result = $parser->parse();
 
-        $this->assertEquals(3, $result->evaluate());
+        $this->assertEquals(3, $result->evaluate([]));
     }
 
     public function testPlusMinusExpression() {
@@ -34,7 +34,7 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         $parser = new MathematicalParser($tokenizer);
         $result = $parser->parse();
 
-        $this->assertEquals(-19, $result->evaluate());
+        $this->assertEquals(-19, $result->evaluate([]));
     }
 
     public function checkHandleParentheses()
@@ -43,49 +43,56 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
         $result = $parser->parse();
-        $this->assertEquals(9, $result->evaluate());
+        $this->assertEquals(9, $result->evaluate([]));
     }
 
     public function testOperatorPrecedence()
     {
-        $this->markTestSkipped();
         $expr = '2 + 2 * 3';
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
         $result = $parser->parse();
         // Assuming the CompositeNode handles operator precedence correctly
-        $this->assertEquals(8, $result->evaluate());
+        $this->assertEquals(8, $result->evaluate([]));
 
         $expr = '2 * 3 * 4';
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
         $result = $parser->parse();
         // Assuming the CompositeNode handles operator precedence correctly
-        $this->assertEquals(24, $result->evaluate());
+        $this->assertEquals(24, $result->evaluate([]));
     }
 
     public function testUnaryMinus() {
-        $this->markTestSkipped();
         $expr = '-5 - 3';
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
         $result = $parser->parse();
-        // Assuming the CompositeNode handles unary minus correctly
-        $this->assertEquals(-2, $result->evaluate());
+        $this->assertEquals(-8, $result->evaluate([]));
 
         $expr = '5--3';
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
         $result = $parser->parse();
         // Assuming the CompositeNode handles unary minus correctly
-        $this->assertEquals(8, $result->evaluate());
+        $this->assertEquals(8, $result->evaluate([]));
 
-        // forbidden
-        $expr = '--5 - -3';
+        $expr = '--5 - -3'; // 5+3
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
         $result = $parser->parse();
         // Assuming the CompositeNode handles unary minus correctly
-        $this->assertEquals(-2, $result->evaluate());
+        $this->assertEquals(8, $result->evaluate([]));
+    }
+
+    public function testContext() {
+        $expr = 'x + 2';
+        $tokenizer = new Tokenizer($expr);
+        $parser = new MathematicalParser($tokenizer);
+        $result = $parser->parse();
+
+        // Assuming the CompositeNode handles context correctly
+        $context = ['x' => 3];
+        $this->assertEquals(5, $result->evaluate($context));
     }
 }

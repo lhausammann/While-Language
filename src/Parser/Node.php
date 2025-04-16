@@ -15,8 +15,16 @@ class Node
         return $this->token->value;
     }
 
-    public function evaluate(): float
+    public function evaluate(array $context): float
     {
+        // look up a value from a variable
+        if ($this->token->type === 'IDENTIFIER') {
+            if (!isset($context[$this->token->value])) {
+                throw new \RuntimeException("Undefined variable: {$this->token->value}");
+            }
+            return $context[$this->token->value];
+        }
+
         // This method should be implemented in subclasses
         return $this->token->value;
     }

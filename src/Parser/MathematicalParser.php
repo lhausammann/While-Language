@@ -12,6 +12,7 @@ readonly class MathematicalParser
     public function parse(): Node
     {
         $result = $this->expression();
+        $this->matchEnd();
         return $result;
     }
 
@@ -70,6 +71,10 @@ readonly class MathematicalParser
         // refactor to "0-x"
         if ($unaryMinus = $this->tryUnaryMinus()) {
             return $unaryMinus;
+        }
+
+        if ($token = $this->tryMatch('IDENTIFIER')) {
+            return new Node($token);
         }
 
         $token = $this->tokenizer->lookahead();

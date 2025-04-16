@@ -21,12 +21,12 @@ class CompositeNode extends Node
         return $this->left . ' ' . $this->token->value . ' ' . $this->right;
     }
 
-    public function evaluate(): float {
+    public function evaluate(array $context): float {
         return match($this->token->value) {
-            '+' => $this->left->evaluate() + $this->right->evaluate(),
-            '-' => $this->left->evaluate() - $this->right->evaluate(),
-            '*' => $this->left->evaluate() * $this->right->evaluate(),
-            '/' => $this->left->evaluate() / $this->right->evaluate(),
+            '+' => $this->left->evaluate($context) + $this->right->evaluate($context),
+            '-' => $this->left->evaluate($context) - $this->right->evaluate($context),
+            '*' => $this->left->evaluate($context) * $this->right->evaluate($context),
+            '/' => $this->left->evaluate($context) / $this->right->evaluate($context),
             default => throw new \InvalidArgumentException('Invalid operator'),
         };
     }

@@ -28,6 +28,15 @@ class Tokenizer
                 return $this->operator();
             }
 
+            // parse identifier
+            if (ctype_alpha($char)) {
+                $start = $this->position;
+                while ($this->position < strlen($this->expression) && ctype_alnum($this->expression[$this->position])) {
+                    $this->position++;
+                }
+                return new Token('IDENTIFIER', substr($this->expression, $start, $this->position - $start), $start);
+            }
+
             throw new \RuntimeException("Unexpected character: $char at position $this->position");
 
         }
