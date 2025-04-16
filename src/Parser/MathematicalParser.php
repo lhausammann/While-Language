@@ -3,38 +3,37 @@
 namespace App\Parser;
 
 
-class MathematicalParser
+readonly class MathematicalParser
 {
-    public function __construct(private readonly Tokenizer $tokenizer)
+    public function __construct(private Tokenizer $tokenizer)
     {
     }
 
     public function parse(): Node
     {
         $result = $this->expression();
-        $this->matchEnd();
-        
         return $result;
     }
 
     // expression:=
-    // operatorExpression [operator operatorExpression]*  (left-associative)
-    // parenthisedExpression operator expression'
-    // parenthisedExpression:='(' expression ')'
-    // number operator expression
+    // operatorDivideMultiplyExpression +/- operatorMultiplyExpression (left-associative)
+
+    // operatorDivideMultiplyExpression:=
+    // primaryExpression (*/ operatorMultiplyExpression)*
+    // primaryExpression:=
+    // number | parenthisedExpression
+
     private function expression(): Node
     {
-        $lookahead = $this->lookahead();
-        // starts with opening bracket - match whole expression
-        // e.g. (7+2)
-        if ($lookahead && $lookahead->value === '(') {
-            return $this->matchParenthisedExpression();
+       $left = $this->matchOperatorDivideMultipliy();
+       // do not parse recursively (left-associative)
+       while($lookahead = $this->tryMatch('operator', ['+', '-'])) {
+            // an operator must be followed by an expression
+            $right = $this->matchOperatorDivideMultipliy();
+            $left = new CompositeNode($left, $right, $lookahead);
         }
-        // starts with a leaf node (number) - match following operator (list) with precedence:
-        // e.g. 7 + 3 - 2
-        if ($lookahead && $lookahead->type === 'number') {
-            return $this->matchOperatorExpression();
-        }
+        return $left;
+
 
         // if we reach here, we have an invalid expression
         throw new \RuntimeException("Invalid expression at position {$lookahead->position}");
@@ -49,14 +48,17 @@ class MathematicalParser
         return $expression;
     }
 
+
+    // match first multiply/divide expression (returning composite or single node),
+    // grouping *,/ together before parsing +/-
     private function matchOperatorExpression(): Node
     {
-        // 7 + 3 [ / 2 - 5 +....]
-        //$left = $operator = new Node($this->match('number'));
+        // 7 + 3 [ / 2 - 5 * 10....]
         $left = $operator = $this->matchOperatorDivideMultipliy();
         while ($token = $this->tryMatch('operator', ['+', '-'])) {
-            // an operator mus be followed by a number
-            $right = $this->matchOperatorDivideMultipliy();
+            // an operator mus be followed by an expression
+            //$right = $this->expression();
+            $right = $this->matchPrimaryExpression(); // do NOT recurse
             $operator = new CompositeNode($left, $right, $token);
             $left = $operator;
         }
@@ -66,19 +68,34 @@ class MathematicalParser
 
     private function matchOperatorDivideMultipliy(): Node
     {
-        // 7 * 3
-        $left = $operator = new Node($this->match('number'));
+        // 7 * 3, "7", 7*5
+        $left = $operator = $this->matchPrimaryExpression();
         while ($token = $this->tryMatch('operator', ['*', '/'])) {
             // an operator mus be followed by a number
-            $right = new Node($this->match('number'));
+            $right = $this->matchPrimaryExpression(); // do NOT recurse
+
             $operator = new CompositeNode($left, $right, $token);
-            $left = $operator;
+            $left = $operator; // if an operator follows, the current operator is the "left" input.
         }
 
         return $operator;
     }
 
+    // match a "primary" expression, starting with '(' or a number.
+    // if the token is a number, return it as a node
+    // if the token is a '(', match the whole expression and return it
+    // if the token is neither, throw an exception
+    public function matchPrimaryExpression(): Node
+    {
+        $token = $this->tokenizer->lookahead();
+        if ($token->type === 'number') {
+            return new Node($this->match('number'));
+        } elseif ($token->type === 'BRACKET' && $token->value === '(') {
+            return $this->matchParenthisedExpression();
+        }
 
+        throw new \RuntimeException("Expected number or '(', got {$token->type} at position {$token->position}");
+    }
 
     public function match(string $type, int|string|float $value = null): Token
     {
@@ -117,7 +134,7 @@ class MathematicalParser
     {
         $token = $this->tokenizer->next();
         if ($token->type !== 'END') {
-            throw new \RuntimeException("Expected end of expression, got {$token->type} at position {$token->position}");
+            throw new \RuntimeException("Expected end of expression, got {$token->type} at position {$token->position} with value: {$token->value}");
         }
 
         return $token;
