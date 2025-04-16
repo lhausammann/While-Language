@@ -63,4 +63,29 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         // Assuming the CompositeNode handles operator precedence correctly
         $this->assertEquals(24, $result->evaluate());
     }
+
+    public function testUnaryMinus() {
+        $this->markTestSkipped();
+        $expr = '-5 - 3';
+        $tokenizer = new Tokenizer($expr);
+        $parser = new MathematicalParser($tokenizer);
+        $result = $parser->parse();
+        // Assuming the CompositeNode handles unary minus correctly
+        $this->assertEquals(-2, $result->evaluate());
+
+        $expr = '5--3';
+        $tokenizer = new Tokenizer($expr);
+        $parser = new MathematicalParser($tokenizer);
+        $result = $parser->parse();
+        // Assuming the CompositeNode handles unary minus correctly
+        $this->assertEquals(8, $result->evaluate());
+
+        // forbidden
+        $expr = '--5 - -3';
+        $tokenizer = new Tokenizer($expr);
+        $parser = new MathematicalParser($tokenizer);
+        $result = $parser->parse();
+        // Assuming the CompositeNode handles unary minus correctly
+        $this->assertEquals(-2, $result->evaluate());
+    }
 }

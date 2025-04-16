@@ -33,10 +33,6 @@ readonly class MathematicalParser
             $left = new CompositeNode($left, $right, $lookahead);
         }
         return $left;
-
-
-        // if we reach here, we have an invalid expression
-        throw new \RuntimeException("Invalid expression at position {$lookahead->position}");
     }
 
     private function matchParenthisedExpression(): Node
@@ -48,23 +44,6 @@ readonly class MathematicalParser
         return $expression;
     }
 
-
-    // match first multiply/divide expression (returning composite or single node),
-    // grouping *,/ together before parsing +/-
-    private function matchOperatorExpression(): Node
-    {
-        // 7 + 3 [ / 2 - 5 * 10....]
-        $left = $operator = $this->matchOperatorDivideMultipliy();
-        while ($token = $this->tryMatch('operator', ['+', '-'])) {
-            // an operator mus be followed by an expression
-            //$right = $this->expression();
-            $right = $this->matchPrimaryExpression(); // do NOT recurse
-            $operator = new CompositeNode($left, $right, $token);
-            $left = $operator;
-        }
-
-        return $operator;
-    }
 
     private function matchOperatorDivideMultipliy(): Node
     {
@@ -87,6 +66,12 @@ readonly class MathematicalParser
     // if the token is neither, throw an exception
     public function matchPrimaryExpression(): Node
     {
+        // at this position (matchPrimary) only unary "-x" is allowed
+        // refactor to "0-x"
+        if ($unaryMinus = $this->tryUnaryMinus()) {
+            return $unaryMinus;
+        }
+
         $token = $this->tokenizer->lookahead();
         if ($token->type === 'number') {
             return new Node($this->match('number'));
@@ -143,6 +128,19 @@ readonly class MathematicalParser
     public function lookahead(): ?Token
     {
         return $token = $this->tokenizer->lookahead();
+    }
 
+    // Add unary minus as a special case
+    private function tryUnaryMinus() {
+        $token = $this->tokenizer->lookahead();
+        if ($token->type === 'operator' && $token->value === '-') {
+            $this->tokenizer->next();
+            return new CompositeNode(
+                new Node(new Token('number', '0', $token->position)),
+                $this->matchPrimaryExpression(),
+                $token
+            );
+        }
+        return null;
     }
 }
