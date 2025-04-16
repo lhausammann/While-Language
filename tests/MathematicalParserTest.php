@@ -95,4 +95,40 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         $context = ['x' => 3];
         $this->assertEquals(5, $result->evaluate($context));
     }
+
+    public function testAnd() {
+        $expr = 'true AND false';
+        $tokenizer = new Tokenizer($expr);
+        $parser = new MathematicalParser($tokenizer);
+        $result = $parser->parse();
+
+        // Assuming the CompositeNode handles logical AND correctly
+        $this->assertEquals(false, $result->evaluate(['true' => true, 'false' => false]));
+
+        $expr = '2*2 AND 2*2';
+        $tokenizer = new Tokenizer($expr);
+        $parser = new MathematicalParser($tokenizer);
+        $result = $parser->parse();
+
+        // Assuming the CompositeNode handles logical AND correctly
+        $this->assertEquals(true, $result->evaluate(['true' => true, 'false' => false]));
+    }
+
+    public function testOr() {
+        $expr = 'true OR false';
+        $tokenizer = new Tokenizer($expr);
+        $parser = new MathematicalParser($tokenizer);
+        $result = $parser->parse();
+
+        // Assuming the CompositeNode handles logical AND correctly
+        $this->assertEquals(true, $result->evaluate(['true' => true, 'false' => false]));
+
+        $expr = 'false AND false OR true AND true';
+        $tokenizer = new Tokenizer($expr);
+        $parser = new MathematicalParser($tokenizer);
+        $result = $parser->parse();
+
+        // Assuming the CompositeNode handles logical AND correctly
+        $this->assertEquals(true, $result->evaluate(['true' => true, 'false' => false]));
+    }
 }

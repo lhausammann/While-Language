@@ -26,15 +26,21 @@ class CalculatorCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $defaultContext = ['true' => true, 'false' => false, 'null' => null];
         $context = parse_url('?'.$input->getOption('context'), PHP_URL_QUERY);
         if ($context) {
-            $output->writeln('Context: ' . print_r($context, true));
+            $context = $context + $defaultContext;
+        } else {
+            $context = $defaultContext;
         }
+        
+        $output->writeln('Context: ' . print_r($context, true));
+
         $expr = $input->getArgument('expression');
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
         $ast = $parser->parse();
-        $output->writeln((string) $ast->evaluate($context = []));
+        $output->writeln((string) $ast->evaluate($context));
         return Command::SUCCESS;
     }
 }

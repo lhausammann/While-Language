@@ -27,6 +27,13 @@ class CompositeNode extends Node
             '-' => $this->left->evaluate($context) - $this->right->evaluate($context),
             '*' => $this->left->evaluate($context) * $this->right->evaluate($context),
             '/' => $this->left->evaluate($context) / $this->right->evaluate($context),
+            'AND' => $this->left->evaluate($context) && $this->right->evaluate($context),
+            'OR' => $this->left->evaluate($context) || $this->right->evaluate($context),
+            '=' => $this->left->evaluate($context) == $this->right->evaluate($context),
+            '~' => $this->left->evaluate($context) != $this->right->evaluate($context),
+            '<' => $this->left->evaluate($context) < $this->right->evaluate($context),
+            '>' => $this->left->evaluate($context) > $this->right->evaluate($context),
+
             default => throw new \InvalidArgumentException('Invalid operator'),
         };
     }

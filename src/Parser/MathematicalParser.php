@@ -26,13 +26,49 @@ readonly class MathematicalParser
 
     private function expression(): Node
     {
-       $left = $this->matchOperatorDivideMultipliy();
+       $left = $this->matchLogicalExpression();
        // do not parse recursively (left-associative)
-       while($lookahead = $this->tryMatch('operator', ['+', '-'])) {
+       while($lookahead = $this->tryMatch('operator', ['AND', 'OR'])) {
+            // an operator must be followed by an expression
+            $right = $this->matchLogicalExpression();
+            $left = new CompositeNode($left, $right, $lookahead);
+        }
+        return $left;
+    }
+
+    private function matchLogicalExpression(): Node
+    {
+        $left = $this->matchComparisonExpression();
+        // do not parse recursively (left-associative)
+        while($lookahead = $this->tryMatch('operator', ['AND', 'OR'])) {
+            // an operator must be followed by an expression
+            $right = $this->matchComparisonExpression();
+            $left = new CompositeNode($left, $right, $lookahead);
+        }
+        return $left;
+    }
+
+    private function matchComparisonExpression(): Node
+    {
+        $left = $this->matchPlusMinusExpression();
+        // do not parse recursively (left-associative)
+        while($lookahead = $this->tryMatch('operator', ['=', '~', '<', '>', '>'])) {
+            // an operator must be followed by an expression
+            $right = $this->matchPlusMinusExpression();
+            $left = new CompositeNode($left, $right, $lookahead);
+        }
+        return $left;
+    }
+
+    private function matchPlusMinusExpression(): Node {
+        $left = $this->matchOperatorDivideMultipliy();
+        // do not parse recursively (left-associative)
+        while($lookahead = $this->tryMatch('operator', ['+', '-'])) {
             // an operator must be followed by an expression
             $right = $this->matchOperatorDivideMultipliy();
             $left = new CompositeNode($left, $right, $lookahead);
         }
+
         return $left;
     }
 

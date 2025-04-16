@@ -24,17 +24,19 @@ class Tokenizer
             if (is_numeric($char)) {
                 return $this->number();
             }
-            if ($char === '+' || $char === '-' || $char === '*' || $char === '/') {
+            if ($char === '+' || $char === '-' || $char === '*' || $char === '/' || $char === '<' || $char === '>' || $char === '=' || $char === '~') {
                 return $this->operator();
             }
 
-            // parse identifier
+            // parse identifier or named operator
             if (ctype_alpha($char)) {
                 $start = $this->position;
                 while ($this->position < strlen($this->expression) && ctype_alnum($this->expression[$this->position])) {
                     $this->position++;
                 }
-                return new Token('IDENTIFIER', substr($this->expression, $start, $this->position - $start), $start);
+                $name = substr($this->expression, $start, $this->position - $start);
+                $type = $name === 'AND' || $name === 'OR' ? 'operator' : 'IDENTIFIER';
+                return new Token($type, $name, $start);
             }
 
             throw new \RuntimeException("Unexpected character: $char at position $this->position");
