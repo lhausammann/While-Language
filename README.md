@@ -1,7 +1,9 @@
 # Install
+<code>
 docker-compose up -d
 docker exec -it parser-app bash
 composer install
+</code>
 
 # Execute language (script defined in the command itself)
 bin/console app:language 
