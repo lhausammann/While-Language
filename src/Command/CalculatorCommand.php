@@ -6,13 +6,11 @@ namespace App\Command;
 
 use App\Parser\MathematicalParser;
 use App\Parser\Tokenizer;
-
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-
 
 #[AsCommand(name: 'app:calculator', description: 'Hello PhpStorm')]
 class CalculatorCommand extends Command
@@ -29,19 +27,19 @@ class CalculatorCommand extends Command
         $defaultContext = ['true' => true, 'false' => false, 'null' => null];
         parse_str(''.$input->getOption('context'), $context);
         if ($context) {
-
             $context = $context + $defaultContext;
         } else {
             $context = $defaultContext;
         }
 
-        $output->writeln('Context: ' . print_r($context, true));
+        $output->writeln('Context: '.print_r($context, true));
 
         $expr = $input->getArgument('expression');
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
         $ast = $parser->parse();
         $output->writeln((string) $ast->evaluate($context));
+
         return Command::SUCCESS;
     }
 }

@@ -21,7 +21,8 @@ abstract class ControlCommand extends AbstractCommand
         $this->statements[] = $statement;
     }
 
-    public function executeChildren(array &$context, OutputInterface $out, InputInterface $in): void{
+    public function executeChildren(array &$context, OutputInterface $out, InputInterface $in): void
+    {
         foreach ($this->statements as $statement) {
             $statement->execute($context, $out, $in);
         }

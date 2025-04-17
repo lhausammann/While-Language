@@ -2,7 +2,6 @@
 
 namespace App\Parser;
 
-
 readonly class MathematicalParser
 {
     public function __construct(private Tokenizer $tokenizer)
@@ -15,6 +14,7 @@ readonly class MathematicalParser
         if ($checkEnd) {
             $this->matchEnd();
         }
+
         return $result;
     }
 
@@ -28,13 +28,14 @@ readonly class MathematicalParser
 
     private function expression(): Node
     {
-       $left = $this->matchLogicalExpression();
-       // do not parse recursively (left-associative)
-       while($lookahead = $this->tryMatch('operator', ['AND', 'OR'])) {
+        $left = $this->matchLogicalExpression();
+        // do not parse recursively (left-associative)
+        while ($lookahead = $this->tryMatch('operator', ['AND', 'OR'])) {
             // an operator must be followed by an expression
             $right = $this->matchLogicalExpression();
             $left = new CompositeNode($left, $right, $lookahead);
         }
+
         return $left;
     }
 
@@ -42,11 +43,12 @@ readonly class MathematicalParser
     {
         $left = $this->matchComparisonExpression();
         // do not parse recursively (left-associative)
-        while($lookahead = $this->tryMatch('operator', ['AND', 'OR'])) {
+        while ($lookahead = $this->tryMatch('operator', ['AND', 'OR'])) {
             // an operator must be followed by an expression
             $right = $this->matchComparisonExpression();
             $left = new CompositeNode($left, $right, $lookahead);
         }
+
         return $left;
     }
 
@@ -54,18 +56,20 @@ readonly class MathematicalParser
     {
         $left = $this->matchPlusMinusExpression();
         // do not parse recursively (left-associative)
-        while($lookahead = $this->tryMatch('operator', ['=', '~', '<', '>', '>'])) {
+        while ($lookahead = $this->tryMatch('operator', ['=', '~', '<', '>', '>'])) {
             // an operator must be followed by an expression
             $right = $this->matchPlusMinusExpression();
             $left = new CompositeNode($left, $right, $lookahead);
         }
+
         return $left;
     }
 
-    private function matchPlusMinusExpression(): Node {
+    private function matchPlusMinusExpression(): Node
+    {
         $left = $this->matchOperatorDivideMultipliy();
         // do not parse recursively (left-associative)
-        while($lookahead = $this->tryMatch('operator', ['+', '-'])) {
+        while ($lookahead = $this->tryMatch('operator', ['+', '-'])) {
             // an operator must be followed by an expression
             $right = $this->matchOperatorDivideMultipliy();
             $left = new CompositeNode($left, $right, $lookahead);
@@ -82,7 +86,6 @@ readonly class MathematicalParser
 
         return $expression;
     }
-
 
     private function matchOperatorDivideMultipliy(): Node
     {
@@ -116,29 +119,29 @@ readonly class MathematicalParser
         }
 
         $token = $this->tokenizer->lookahead();
-        if ($token->type === 'number') {
+        if ('number' === $token->type) {
             return new Node($this->match('number'));
-        } elseif ($token->type === 'BRACKET' && $token->value === '(') {
+        } elseif ('BRACKET' === $token->type && '(' === $token->value) {
             return $this->matchParenthisedExpression();
         }
 
         throw new \RuntimeException("Expected number or '(', got {$token->type} at position {$token->position}");
     }
 
-    public function match(string $type, int|string|float $value = null): Token
+    public function match(string $type, int|string|float|null $value = null): Token
     {
         $token = $this->tokenizer->next();
         if ($token->type !== $type) {
             throw new \RuntimeException("Expected token of type $type, got {$token->type} at position {$token->position}");
         }
-        if ($value !== null && $token->value !== $value) {
+        if (null !== $value && $token->value !== $value) {
             throw new \RuntimeException("Expected token with value $value, got {$token->value} at position {$token->position}");
         }
 
         return $token;
     }
 
-    public function tryMatch(string $type, int|string|float|bool|array $value = null): ?Token
+    public function tryMatch(string $type, int|string|float|bool|array|null $value = null): ?Token
     {
         $token = $this->tokenizer->lookahead();
         if ($token->type !== $type) {
@@ -150,9 +153,8 @@ readonly class MathematicalParser
             if (!in_array($token->value, $value)) {
                 return null;
             }
-        } elseif ($value !== null && $token->value !== $value) {
+        } elseif (null !== $value && $token->value !== $value) {
             return null;
-
         }
 
         return $this->tokenizer->next();
@@ -161,7 +163,7 @@ readonly class MathematicalParser
     public function matchEnd(): Token // of type END
     {
         $token = $this->tokenizer->next();
-        if ($token->type !== 'END') {
+        if ('END' !== $token->type) {
             throw new \RuntimeException("Expected end of expression, got {$token->type} at position {$token->position} with value: {$token->value}");
         }
 
@@ -174,16 +176,19 @@ readonly class MathematicalParser
     }
 
     // Add unary minus as a special case
-    private function tryUnaryMinus() {
+    private function tryUnaryMinus()
+    {
         $token = $this->tokenizer->lookahead();
-        if ($token->type === 'operator' && $token->value === '-') {
+        if ('operator' === $token->type && '-' === $token->value) {
             $this->tokenizer->next();
+
             return new CompositeNode(
                 new Node(new Token('number', '0', $token->position)),
                 $this->matchPrimaryExpression(),
                 $token
             );
         }
+
         return null;
     }
 }

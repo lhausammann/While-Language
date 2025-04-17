@@ -1,10 +1,10 @@
 <?php
 
 use App\Parser\CompositeNode;
-use App\Parser\Tokenizer;
 use App\Parser\MathematicalParser;
+use App\Parser\Tokenizer;
 
-class MathematicalParserTest extends \PHPUnit\Framework\TestCase
+class MathematicalParserTest extends PHPUnit\Framework\TestCase
 {
     public function testParseSimpleExpression()
     {
@@ -14,7 +14,7 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         $result = $parser->parse();
 
         $this->assertInstanceOf(CompositeNode::class, $result);
-        $this->assertEquals('1 + 2', (string)$result);
+        $this->assertEquals('1 + 2', (string) $result);
     }
 
     public function testEvaluateSimpleExpression()
@@ -27,8 +27,9 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(3, $result->evaluate([]));
     }
 
-    public function testPlusMinusExpression() {
-        //$this->markTestSkipped();
+    public function testPlusMinusExpression()
+    {
+        // $this->markTestSkipped();
         $expr = '5 + 3 - 10 -20 + 3';
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
@@ -63,7 +64,8 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(24, $result->evaluate([]));
     }
 
-    public function testUnaryMinus() {
+    public function testUnaryMinus()
+    {
         $expr = '-5 - 3';
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
@@ -85,7 +87,8 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(8, $result->evaluate([]));
     }
 
-    public function testContext() {
+    public function testContext()
+    {
         $expr = 'x + 2';
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
@@ -96,7 +99,8 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(5, $result->evaluate($context));
     }
 
-    public function testAnd() {
+    public function testAnd()
+    {
         $expr = 'true AND false';
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);
@@ -114,7 +118,8 @@ class MathematicalParserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(true, $result->evaluate(['true' => true, 'false' => false]));
     }
 
-    public function testOr() {
+    public function testOr()
+    {
         $expr = 'true OR false';
         $tokenizer = new Tokenizer($expr);
         $parser = new MathematicalParser($tokenizer);

@@ -2,7 +2,6 @@
 
 namespace App\SimpleLanguage;
 
-use App\Parser\CompositeNode;
 use App\Parser\Node;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,9 +9,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractCommand
 {
     protected ?Node $expression = null;
+
     public function __construct(
-        public   string $name,
-        public  int $lineNumber,
+        public string $name,
+        public int $lineNumber,
     ) {
     }
 

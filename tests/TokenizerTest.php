@@ -1,18 +1,19 @@
 <?php
+
 use App\Parser\Tokenizer;
 
 /**
  * Tokenizer handles the tokenization of mathematical expressions.
  */
-class TokenizerTest extends \PHPUnit\Framework\TestCase
+class TokenizerTest extends PHPUnit\Framework\TestCase
 {
-
-    public function testNext() {
+    public function testNext()
+    {
         $expr = '   1   +  1';
         $tokenizer = new Tokenizer($expr);
         $tokens = [];
         while ($token = $tokenizer->next()) {
-            if ($token->type === 'END') {
+            if ('END' === $token->type) {
                 break;
             }
             $tokens[] = $token;
@@ -37,7 +38,7 @@ class TokenizerTest extends \PHPUnit\Framework\TestCase
         $tokenizer = new Tokenizer($expr);
         $tokens = [];
         while ($token = $tokenizer->next()) {
-            if ($token->type === 'END') {
+            if ('END' === $token->type) {
                 break;
             }
             $tokens[] = $token;

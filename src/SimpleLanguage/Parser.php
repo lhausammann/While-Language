@@ -2,7 +2,6 @@
 
 namespace App\SimpleLanguage;
 
-use App\Parser\CompositeNode;
 use App\Parser\MathematicalParser;
 use App\Parser\Node;
 use App\Parser\Tokenizer;
@@ -13,6 +12,7 @@ class Parser
     private Program $program;
 
     private $statementCount = 0;
+
     public function __construct(
         public readonly Tokenizer $tokenizer,
     ) {
@@ -22,33 +22,35 @@ class Parser
 
     public function parse(): AbstractCommand
     {
-        while($token = $this->tokenizer->lookahead()) {
-            if ($token->type === 'END') {
+        while ($token = $this->tokenizer->lookahead()) {
+            if ('END' === $token->type) {
                 break;
             }
 
-            if ($token->type === 'IDENTIFIER') {
+            if ('IDENTIFIER' === $token->type) {
                 $command = $this->parseCommand();
                 $this->program->addStatement($command);
-            } elseif ($token->type === 'SEMICOLON') {
+            } elseif ('SEMICOLON' === $token->type) {
                 continue;
             } else {
                 throw new \RuntimeException("Unexpected token: $token->value");
             }
         }
         $this->expressionParser->match('END');
+
         return $this->program;
     }
 
     public function parseCommand(): AbstractCommand
     {
         $command = $this->expressionParser->match('IDENTIFIER');
-        $this->statementCount++;
+        ++$this->statementCount;
+
         return match ($command->value) {
             'WHILE' => $this->parseWhile(),
             'SET' => $this->parseSet(),
             'PRINT' => $this->parsePrint(),
-            default => throw new \RuntimeException("Unknown command: " . print_r($command, true)),
+            default => throw new \RuntimeException('Unknown command: '.print_r($command, true)),
         };
     }
 
@@ -57,9 +59,10 @@ class Parser
         $expr = $this->expressionParser->parse(false);
         $this->expressionParser->match('SEMICOLON', ';');
         $body = $this->parseBlock();
-        $while =  new WhileCommand('while', $this->statementCount);
+        $while = new WhileCommand('while', $this->statementCount);
         $while->setExpression($expr);
         $while->setStatements($body);
+
         return $while;
     }
 
@@ -69,7 +72,7 @@ class Parser
         $name = $this->expressionParser->match('IDENTIFIER')->value;
         $this->expressionParser->match('operator', '=');
         if ($lookahead = $this->tokenizer->lookahead()) {
-            if ($lookahead->type === 'operator' && $lookahead->value === '<') {
+            if ('operator' === $lookahead->type && '<' === $lookahead->value) {
                 $this->expressionParser->match('operator', '<');
                 $this->expressionParser->match('SEMICOLON', ';');
             } else {
@@ -82,15 +85,14 @@ class Parser
         if ($expr) {
             $cmd->setExpression($expr);
         }
+
         return $cmd;
     }
-
-
 
     public function parsePrint(): PrintCommand
     {
         $next = $this->tokenizer->lookahead();
-        if ($next->type === 'STRING') {
+        if ('STRING' === $next->type) {
             $this->expressionParser->match('STRING');
             $expr = new Node($next);
         } else {
@@ -99,16 +101,15 @@ class Parser
         $this->expressionParser->match('SEMICOLON', ';');
         $command = new PrintCommand('Print', $this->statementCount);
         $command->setExpression($expr);
-        return $command;
 
+        return $command;
     }
 
     public function parseBlock(): array
     {
         $block = [];
         while ($token = $this->expressionParser->lookahead()) {
-            if ($token->type === 'IDENTIFIER' && $token->value === 'END') {
-
+            if ('IDENTIFIER' === $token->type && 'END' === $token->value) {
                 $this->expressionParser->match('IDENTIFIER', 'END');
                 $this->expressionParser->match('SEMICOLON', ';');
                 break;

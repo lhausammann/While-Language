@@ -31,7 +31,6 @@ PRINT "Resultat:";
 PRINT x + y;
 EOT;
 
-
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->tokenizer = new Tokenizer($this->script);
@@ -39,6 +38,7 @@ EOT;
         $program = $this->parser->parse();
         $context = [];
         $program->execute($context, $output, $input);
+
         return Command::SUCCESS;
     }
 }
