@@ -14,18 +14,18 @@ bin/console app:language
 - bin/console app:calculator "true AND false"
 
 # Expressions in mathematical parser
-<code>
+```while
 AND, OR
 =, ~, <, >
 +, -, *, /, ()
-</code>
+```
 
 # Statements in while-language (turing complete)
-<code>
+```while
 WHILE <expr>;
 END (after while)
 SET <Identifier> = <expr>
 PRINT <expr>
-</code>
+```
 
 
