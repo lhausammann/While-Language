@@ -20,7 +20,7 @@ AND, OR
 +, -, *, /, ()
 ```
 
-# Statements in while-language (turing complete)
+# Statements in while-language (toy language, but turing complete)
 ```while
 WHILE <expr>;
 END; (after while)
