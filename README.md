@@ -23,9 +23,9 @@ AND, OR
 # Statements in while-language (turing complete)
 ```while
 WHILE <expr>;
-END (after while)
-SET <Identifier> = <expr>
-PRINT <expr>
+END; (after while)
+SET <Identifier> = <expr>;
+PRINT <expr>;
 ```
-
+Use ```SET = <``` for input.
 
