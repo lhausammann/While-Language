@@ -15,7 +15,7 @@ class Node
         return $this->token->value;
     }
 
-    public function evaluate(array $context): float
+    public function evaluate(array $context): float|string|int
     {
         // look up a value from a variable
         if ($this->token->type === 'IDENTIFIER') {

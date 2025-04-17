@@ -28,6 +28,24 @@ class Tokenizer
                 return $this->operator();
             }
 
+            if ($char === '"') {
+                $this->position++;
+                $start = $this->position;
+                while ($this->position < strlen($this->expression) && $this->expression[$this->position] !== '"') {
+                    $this->position++;
+                }
+                if ($this->position >= strlen($this->expression)) {
+                    throw new \RuntimeException("Unterminated string literal at position $start");
+                }
+                $this->position++; // skip closing quote
+                return new Token('STRING', substr($this->expression, $start, $this->position - $start - 1), $start);
+            }
+
+            if ($char === ';') {
+                $this->position++;
+                return new Token('SEMICOLON', ';', $this->position);
+            }
+
             // parse identifier or named operator
             if (ctype_alpha($char)) {
                 $start = $this->position;

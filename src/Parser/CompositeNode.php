@@ -21,7 +21,7 @@ class CompositeNode extends Node
         return $this->left . ' ' . $this->token->value . ' ' . $this->right;
     }
 
-    public function evaluate(array $context): float {
+    public function evaluate(array $context): float|int|string {
         return match($this->token->value) {
             '+' => $this->left->evaluate($context) + $this->right->evaluate($context),
             '-' => $this->left->evaluate($context) - $this->right->evaluate($context),

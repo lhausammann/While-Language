@@ -9,10 +9,12 @@ readonly class MathematicalParser
     {
     }
 
-    public function parse(): Node
+    public function parse($checkEnd = true): Node
     {
         $result = $this->expression();
-        $this->matchEnd();
+        if ($checkEnd) {
+            $this->matchEnd();
+        }
         return $result;
     }
 

@@ -27,13 +27,14 @@ class CalculatorCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $defaultContext = ['true' => true, 'false' => false, 'null' => null];
-        $context = parse_url('?'.$input->getOption('context'), PHP_URL_QUERY);
+        parse_str(''.$input->getOption('context'), $context);
         if ($context) {
+
             $context = $context + $defaultContext;
         } else {
             $context = $defaultContext;
         }
-        
+
         $output->writeln('Context: ' . print_r($context, true));
 
         $expr = $input->getArgument('expression');
