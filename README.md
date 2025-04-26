@@ -35,6 +35,9 @@ This doesnt involve strings, but you can SET them:
 SET aString = "aString";
 SET anotherString = <; 
 and compare them as variabiles: aString = anotherString.
+PRINT does only print either a string OR an expression.
+But you can interpolate variables from the current context:
+PRINT "Your name is: #{yourName}" - this will ouptut: Your name is: Hans
 
 ** Example **
 ```while
