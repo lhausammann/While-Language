@@ -29,6 +29,13 @@ PRINT <expr>;
 ```
 Use ```SET = <``` for input.
 
+# Epressions
+Expressions are the ones supported in MathematicalParser.
+This doesnt involve strings, but you can SET them:
+SET aString = "aString";
+SET anotherString = <; 
+and compare them as variabiles: aString = anotherString.
+
 ** Example **
 ```while
 SET running=true;
