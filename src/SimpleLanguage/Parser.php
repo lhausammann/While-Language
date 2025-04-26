@@ -6,6 +6,24 @@ use App\Parser\MathematicalParser;
 use App\Parser\Node;
 use App\Parser\Tokenizer;
 
+/**
+ * Parser class for the SimpleLanguage.
+ *
+ * This class is responsible for parsing the input tokens and generating
+ * the corresponding command objects.
+ *
+ * It parses a structure like:
+ * SET do = false;
+ * WHILE do;
+ *   PRINT "Wie ist Dein Name?
+ *   SET name = <;
+ *   PRINT "Hallo";
+ *  PRINT name;
+ *  PRINT
+ *  SET x =
+ *
+ *   PRINT "Hello World";
+ */
 class Parser
 {
     private MathematicalParser $expressionParser;
@@ -75,7 +93,16 @@ class Parser
             if ('operator' === $lookahead->type && '<' === $lookahead->value) {
                 $this->expressionParser->match('operator', '<');
                 $this->expressionParser->match('SEMICOLON', ';');
-            } else {
+            } elseif ('STRING' === $lookahead->type) {
+                $this->expressionParser->match('STRING');
+                $expr = new Node($lookahead);
+                $this->expressionParser->match('SEMICOLON', ';');
+            } elseif ('number' === $lookahead->type) {
+                $this->expressionParser->match('number');
+                $expr = new Node($lookahead);
+                $this->expressionParser->match('SEMICOLON', ';');
+            }
+            else {
                 $expr = $this->expressionParser->parse(false);
                 $this->expressionParser->match('SEMICOLON', ';');
             }

@@ -69,6 +69,21 @@ class Tokenizer
         return new Token('END', 'END', $this->position);
     }
 
+    public function getContext()
+    {
+        // get the surrounding context of the current position
+        $start = max(0, $this->position - 10);
+        $end = min(strlen($this->expression), $this->position + 10);
+        $context = substr($this->expression, $start, $end - $start);
+        $context = str_replace("\n", '\\n', $context);
+        $context = str_replace("\r", '\\r', $context);
+        $context = str_replace("\t", '\\t', $context);
+        $context = str_replace("\0", '\\0', $context);
+        $context = str_replace("\x0B", '\\v', $context);
+
+        return $context;
+    }
+
     public function lookahead(): Token
     {
         $pos = $this->position;

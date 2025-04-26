@@ -15,28 +15,57 @@ use Symfony\Component\Console\Output\OutputInterface;
 class LanguageCommand extends Command
 {
     private string $script = <<<EOT
-PRINT "Wie ist Dein Name?";
-SET name = <;
-PRINT "Hallo";
-PRINT name;
 
-SET x = 15;
-WHILE(x > 10);
-    PRINT "x is greater than 10";
-    SET x = x - 1;
-    PRINT x;
+SET running=true;
+PRINT "Enter your name or 'exit' to quit";
+WHILE (running);
+    SET EXIT = "exit";
+    SET innerLoop = true;
+    PRINT "Dein Name:";
+    SET name = <;
+    WHILE (name ~ EXIT AND innerLoop=true);
+        SET innerLoop = false;
+        PRINT "Dein Name ist #{name}";
+    END;
+    WHILE (name = EXIT AND innerLoop=true);
+        SET innerLoop = false;
+        SET running = false;
+        PRINT "Bye!";
+    END;
 END;
-SET y = 10;
-PRINT "Resultat:";
-PRINT x + y;
 EOT;
+
+    protected function configure(): void
+    {
+        $this->setDescription('While Language - input file name to laod');
+        $this->addArgument('file', null, 'File to load');
+    }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->tokenizer = new Tokenizer($this->script);
-        $this->parser = new Parser($this->tokenizer);
-        $program = $this->parser->parse();
-        $context = [];
+        $file = $input->getArgument('file');
+        if (null !== $file) {
+            $this->script = file_get_contents(__DIR__.'/../../scripts/'.$file);
+            if (false === $this->script) {
+                $output->writeln("<error>Could not read file: $file</error>");
+
+                return Command::FAILURE;
+            } else {
+                $this->script = str_replace("\r\n", "\n", $this->script);
+            }
+        }
+
+        try {
+            $this->tokenizer = new Tokenizer($this->script);
+            $this->parser = new Parser($this->tokenizer);
+            $program = $this->parser->parse();
+        } catch (\Exception $e) {
+            $output->writeln("<error>Parser error: {$e->getMessage()}</error>");
+            $output->writeln('Context: '.$this->tokenizer->getContext());
+
+            return Command::FAILURE;
+        }
+        $context = ['true' => true, 'false' => false];
         $program->execute($context, $output, $input);
 
         return Command::SUCCESS;

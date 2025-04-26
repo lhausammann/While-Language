@@ -11,10 +11,13 @@ class SetCommand extends AbstractCommand
 {
     public function execute(array &$context, OutputInterface $out, InputInterface $in): void
     {
+        // SET name = <;
+        // aks for input
         if (!$this->expression) {
             $questionHelper = new QuestionHelper();
             $question = new Question('Value for '.$this->name.': ');
             $context[$this->name] = $questionHelper->ask($in, $out, $question);
+        // SET name = 'Hans'
         } else {
             $context[$this->name] = $this->expression->evaluate($context);
         }
