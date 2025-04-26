@@ -29,3 +29,24 @@ PRINT <expr>;
 ```
 Use ```SET = <``` for input.
 
+** Example **
+```while
+SET running=true;
+PRINT "Enter your name or 'exit' to quit";
+WHILE (running);
+    SET EXIT = "exit";
+    SET innerLoop = true;
+    PRINT "Dein Name:";
+    SET name = <;
+    WHILE (name ~ EXIT AND innerLoop=true);
+        SET innerLoop = false;
+        PRINT "Dein Name ist #{name}";
+    END;
+    WHILE (name = EXIT AND innerLoop=true);
+        SET innerLoop = false;
+        SET running = false;
+        PRINT "Bye!";
+    END;
+END;
+```
+```bin/console app:language <scriptName>```
