@@ -18,6 +18,7 @@ class LanguageCommand extends Command
 
 SET running=true;
 PRINT "Enter your name or 'exit' to quit";
+SET tpl = "Dein Name ist: #{name}";
 WHILE (running);
     SET EXIT = "exit";
     SET innerLoop = true;
@@ -25,7 +26,7 @@ WHILE (running);
     SET name = <;
     WHILE (name ~ EXIT AND innerLoop=true);
         SET innerLoop = false;
-        PRINT "Dein Name ist #{name}";
+        PRINT tpl;
     END;
     WHILE (name = EXIT AND innerLoop=true);
         SET innerLoop = false;

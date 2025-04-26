@@ -18,6 +18,7 @@ class Node
     {
         if ('STRING' === $this->token->type) {
             // interpolate values
+            /*
             if (preg_match_all('/#\{(\w+)\}/', $this->token->value, $matches)) {
                 foreach ($matches[1] as $var) {
                     if (!isset($context[$var])) {
@@ -26,7 +27,7 @@ class Node
 
                     return str_replace('{'.$var.'}', $context[$var], $this->token->value);
                 }
-            }
+            }*/
 
             return $this->token->value;
         }
