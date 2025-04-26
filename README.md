@@ -29,7 +29,7 @@ PRINT <expr>;
 ```
 Use ```SET = <``` for input.
 
-# Epressions
+# Expressions
 Expressions are the ones supported in MathematicalParser.
 This doesnt involve strings, but you can SET them:
 SET aString = "aString";
